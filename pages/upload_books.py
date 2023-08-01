@@ -16,9 +16,9 @@ from llama_index import download_loader
 
 st.set_page_config(page_title="Upload material and chat", page_icon=None)
 
-PDFReader = download_loader("PDFReader")
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
+PDFReader = download_loader("PDFReader")
 
 
 
