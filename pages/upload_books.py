@@ -4,7 +4,7 @@ import os
 import openai 
 from streamlit_chat import message as st_message
 
-import os
+# import os
 import streamlit as st
 from tempfile import NamedTemporaryFile
 import PyPDF2
