@@ -26,16 +26,16 @@ if "history" not in st.session_state:
 
 def process_pdf(uploaded_file, new_dir):
     pdf_file_obj = open(os.path.join(new_dir, uploaded_file.name), 'rb')
-    pdf_reader = PyPDF2.PdfFileReader(pdf_file_obj)
+    # pdf_reader = PyPDF2.PdfFileReader(pdf_file_obj)
 
-    text = ""
-    for page_num in range(pdf_reader.numPages):
-        page_obj = pdf_reader.getPage(page_num)
-        text += page_obj.extract_text()
+    # text = ""
+    # for page_num in range(pdf_reader.numPages):
+    #     page_obj = pdf_reader.getPage(page_num)
+    #     text += page_obj.extract_text()
 
-    text_filename = os.path.splitext(uploaded_file.name)[0] + ".txt"
-    with open(os.path.join(new_dir, text_filename), 'w') as f:
-        f.write(text)
+    # text_filename = os.path.splitext(uploaded_file.name)[0] + ".txt"
+    with open(os.path.join(new_dir, uploaded_file), 'w') as f:
+        f.write(uploaded_file)
     
     return new_dir
 
