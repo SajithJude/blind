@@ -83,7 +83,7 @@ if len(st.session_state['img']) > 0:
         
             st.write(str(j)+" "+str(x.name), key=j)
             st.caption("Text Recognized")
-            st.write(info+"\n\n")
+            st.write(info)
             save_text(info)
 
             # Create index from text directory
