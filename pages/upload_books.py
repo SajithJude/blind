@@ -24,20 +24,20 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 if "history" not in st.session_state:
     st.session_state.history = []
 
-def process_pdf(uploaded_file, new_dir):
-    pdf_file_obj = open(os.path.join(new_dir, uploaded_file.name), 'rb')
-    # pdf_reader = PyPDF2.PdfFileReader(pdf_file_obj)
+# def process_pdf(uploaded_file, new_dir):
+#     pdf_file_obj = open(os.path.join(new_dir, uploaded_file.filename), 'rb')
+#     # pdf_reader = PyPDF2.PdfFileReader(pdf_file_obj)
 
-    # text = ""
-    # for page_num in range(pdf_reader.numPages):
-    #     page_obj = pdf_reader.getPage(page_num)
-    #     text += page_obj.extract_text()
+#     # text = ""
+#     # for page_num in range(pdf_reader.numPages):
+#     #     page_obj = pdf_reader.getPage(page_num)
+#     #     text += page_obj.extract_text()
 
-    # text_filename = os.path.splitext(uploaded_file.name)[0] + ".txt"
-    with open(os.path.join(new_dir, uploaded_file), 'w') as f:
-        f.write(uploaded_file)
+#     # text_filename = os.path.splitext(uploaded_file.name)[0] + ".txt"
+#     with open(os.path.join(new_dir, uploaded_file), 'w') as f:
+#         f.write(uploaded_file)
     
-    return new_dir
+#     return new_dir
 
 def delete_file(DATA_DIR, file_name):
     pdf_path = os.path.join(DATA_DIR, file_name)
@@ -57,6 +57,9 @@ def save_uploaded_file(uploaded_file):
         f.write(uploaded_file.getbuffer())
     return new_dir
 
+def process_pdf(new_dir):
+    return new_dir
+
 def new_chat():
     st.session_state.history = []
 
@@ -73,7 +76,8 @@ with st.expander("Upload/Delete books"):
         st.success("It would take a while to index the books, please wait..!")
     
         pdf_filename = uploaded_file.name
-        
+        text_dir = process_pdf(pdf_filename)
+        documents = SimpleDirectoryReader(str(text_dir)).load_data()
         documents = process_pdf(uploaded_file,newd)
         loader = SimpleDirectoryReader(documents).load_data()
         index = GPTSimpleVectorIndex.from_documents(loader)
