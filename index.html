@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Speech to Text Demo</title>
+    <style>
+      textarea {
+        width: 100%;
+        height: 100px;
+      }
+      button {
+        display: block;
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Speech to Text Demo</h1>
+
+    <textarea id="text-output"></textarea>
+    <button id="start-btn">Start Recognition</button>
+    <button id="stop-btn">Stop Recognition</button>
+
+    <script>
+      // Check browser compatibility
+      window.SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (window.SpeechRecognition) {
+        var recognition = new SpeechRecognition();
+
+        recognition.onresult = function(event) {
+          document.getElementById('text-output').value += event.results[0][0].transcript;
+        }
+
+        document.getElementById('start-btn').addEventListener('click', function() {
+          recognition.start();
+        });
+
+        document.getElementById('stop-btn').addEventListener('click', function() {
+          recognition.stop();
+        });
+      } else {
+        alert("Your browser does not support speech recognition.");
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+streamlit
+llama_index==0.5.27
+openai
+streamlit_chat
+PyPDF2
