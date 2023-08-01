@@ -69,13 +69,14 @@ with st.expander("Upload/Delete books"):
     uploaded_file = st.file_uploader("Upload a PDF file", type="pdf")
     
     if uploaded_file is not None:
-        save_uploaded_file(uploaded_file)
+        newd = save_uploaded_file(uploaded_file)
         st.success("It would take a while to index the books, please wait..!")
     
         pdf_filename = uploaded_file.name
         
-        documents = process_pdf(uploaded_file)
-        index = GPTSimpleVectorIndex.from_documents(documents)
+        documents = process_pdf(uploaded_file,newd)
+        loader = SimpleDirectoryReader(documents).load_data()
+        index = GPTSimpleVectorIndex.from_documents(loader)
         index.save_to_disk(os.path.join(DATA_DIR, os.path.splitext(pdf_filename)[0] + ".json"))
         st.success("Index created successfully!")
     
