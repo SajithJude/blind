@@ -17,7 +17,6 @@ from llama_index import download_loader
 
 st.set_page_config(page_title="Upload material and chat", page_icon=None)
 
-os.environ['OPENAI_API_KEY']  = "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"
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
