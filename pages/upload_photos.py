@@ -79,12 +79,11 @@ if len(st.session_state['img']) > 0:
             encoded_image = base64.b64encode(x.read())
             result = callAPI(encoded_image)
             # try:
-            info = result['response'][0]['textAnnotations'][0]['description']
-
+            info = result
         
             st.write(str(j)+" "+str(x.name), key=j)
             st.caption("Text Recognized")
-            st.write(info+"\n\n")
+            st.write(info)
             save_text(info)
 
             # Create index from text directory
