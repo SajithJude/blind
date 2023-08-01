@@ -1,0 +1,106 @@
+import streamlit as st
+import base64
+import requests
+import json
+import os
+from pathlib import Path
+from llama_index import download_loader, GPTSimpleVectorIndex, SimpleDirectoryReader
+
+st.set_option('deprecation.showfileUploaderEncoding', False)
+
+# Title
+st.title("Procastinated Preparation APP")
+
+# OCR function
+def callAPI(image):
+    vision_url = 'https://vision.googleapis.com/v1/images:annotate?key='
+    api_key = os.environ["GCP_KEY"]
+    json_data = {
+        'requests': [
+            {
+                'image':{
+                    'content': image.decode('utf-8')
+                },
+                'features':[
+                    {
+                        'type':'TEXT_DETECTION',
+                        'maxResults':5
+                    }
+                ]
+            }
+        ]
+    }
+
+    responses = requests.post(vision_url+api_key, json=json_data)
+    return responses.json()
+
+# Text saver function
+def save_text(text):
+    os.makedirs('text', exist_ok=True)
+    file_name = f"{st.session_state.photo_name.split('.')[0]}.txt"
+    file_path = os.path.join("text", file_name)
+    with open(file_path, 'w') as f:
+        f.write(text)
+
+# Photo taker
+button = st.button("Open Camera")
+if button or "button" in st.session_state:
+    st.session_state['button'] = True
+    if 'img' not in st.session_state:
+        st.session_state['img'] = []
+    img_file_buffer = st.camera_input("Take a picture of your book")
+    if img_file_buffer is not None:
+        st.session_state['img'].append(img_file_buffer)
+        
+    if len(st.session_state['img']) > 0:
+        if "generate" not in st.session_state:
+            st.success("Clear photo to capture the next photo or Generate to continue")
+            i = 1
+            for x in st.session_state['img']:
+                st.write(str(i)+" "+str(x.name), key=i)
+                i = i+1
+        generate_button = st.button("Generate")
+        if generate_button or "generate" in st.session_state:
+            if img_file_buffer != None:
+                st.session_state['img'].pop()
+            st.session_state['generate'] = True
+            if generate_button:
+                st.experimental_rerun()
+            
+            st.session_state['info'] = []
+            j = 1
+            for x in st.session_state['img']:
+                st.session_state.photo_name = f"photo_{st.session_state.get('photo_counter', 0)}.jpg"
+                st.session_state.photo_counter = st.session_state.get("photo_counter", 0) + 1
+                encoded_image = base64.b64encode(x.read())
+                result = callAPI(encoded_image)
+                info = result['responses'][0]['textAnnotations'][0]['description']
+                st.write(str(j)+" "+str(x.name), key=j)
+                st.caption("Text Recognized")
+                st.write(info+"\n\n")
+                save_text(info)
+
+                # Create index from text directory
+                text_dir = os.path.join(os.getcwd(), "text")
+                index_path = text_dir
+                documents = SimpleDirectoryReader(str(text_dir)).load_data()
+                intax = GPTSimpleVectorIndex.from_documents(documents)
+                
+                # Instead of hardcoded question, let's take user's input
+                query = st.text_input("Enter your query here: ")
+                res = intax.query(query) if query else None
+
+                if res is not None:
+                    st.caption("Questions generated:\n")
+                    st.info(str(res)+"\n\n")
+                
+                st.markdown("""---""")
+                for file in os.listdir(text_dir):
+                    file_path = os.path.join(text_dir, file)
+                    try:
+                        if os.path.isfile(file_path):
+                            os.unlink(file_path)
+                    except Exception as e:
+                        print(e)
+                j = j +1
+            print("Text directory cleared")
