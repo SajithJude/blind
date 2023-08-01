@@ -77,7 +77,7 @@ with st.expander("Upload/Delete books"):
     
         pdf_filename = uploaded_file.name
         text_dir = process_pdf(pdf_filename)
-        documents = SimpleDirectoryReader(str(text_dir)).load_data()
+        documents = SimpleDirectoryReader(os.path.join("data",text_dir)).load_data()
         # documents = process_pdf(uploaded_file,newd)
         # loader = SimpleDirectoryReader(documents).load_data()
         index = GPTSimpleVectorIndex.from_documents(documents)
