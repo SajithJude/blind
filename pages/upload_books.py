@@ -24,14 +24,20 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 if "history" not in st.session_state:
     st.session_state.history = []
 
-def process_pdf(uploaded_file):
-    PDFReader = download_loader("PDFReader")
+def process_pdf(uploaded_file, new_dir):
+    pdf_file_obj = open(os.path.join(new_dir, uploaded_file.name), 'rb')
+    pdf_reader = PyPDF2.PdfFileReader(pdf_file_obj)
 
-    loader = PDFReader()
-    with NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
-        temp_file.write(uploaded_file.getvalue())
-        documents = loader.load_data(file=Path(temp_file.name))
-    return documents
+    text = ""
+    for page_num in range(pdf_reader.numPages):
+        page_obj = pdf_reader.getPage(page_num)
+        text += page_obj.extract_text()
+
+    text_filename = os.path.splitext(uploaded_file.name)[0] + ".txt"
+    with open(os.path.join(new_dir, text_filename), 'w') as f:
+        f.write(text)
+    
+    return new_dir
 
 def delete_file(DATA_DIR, file_name):
     pdf_path = os.path.join(DATA_DIR, file_name)
@@ -45,8 +51,11 @@ def delete_file(DATA_DIR, file_name):
         os.remove(json_path)
 
 def save_uploaded_file(uploaded_file):
-    with open(os.path.join(DATA_DIR, uploaded_file.name), "wb") as f:
+    new_dir = os.path.join(DATA_DIR, os.path.splitext(uploaded_file.name)[0])
+    os.makedirs(new_dir, exist_ok=True)
+    with open(os.path.join(new_dir, uploaded_file.name), "wb") as f:
         f.write(uploaded_file.getbuffer())
+    return new_dir
 
 def new_chat():
     st.session_state.history = []
