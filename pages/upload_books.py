@@ -17,6 +17,7 @@ from llama_index import download_loader
 
 st.set_page_config(page_title="Upload material and chat", page_icon=None)
 
+PDFReader = download_loader("PDFReader")
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
@@ -26,7 +27,6 @@ if "history" not in st.session_state:
     st.session_state.history = []
 
 def process_pdf(uploaded_file):
-    PDFReader = download_loader("PDFReader")
     loader = PDFReader()
     with NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
         temp_file.write(uploaded_file.getvalue())
